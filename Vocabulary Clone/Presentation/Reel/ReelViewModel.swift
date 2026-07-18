@@ -11,18 +11,26 @@ final class ReelViewModel {
     private(set) var totalCount: Int = 0
     var selectedAccent: AudioAccent
     var pendingShare: ShareableImage?
+    private(set) var streakSummary: StreakSummary?
+    private(set) var isStreakPanelVisible = false
+    private(set) var pronunciationState: PronunciationCheckState = .idle
 
-    private let repository: WordQuerying & WordStateMutating
-    private let audioPlayer: AudioPlayerProtocol
-    private let shareImageGenerator: ShareImageGenerating
+    let repository: WordQuerying & WordStateMutating & WordHistoryQuerying
+    let audioPlayer: AudioPlayerProtocol
+    let shareImageGenerator: ShareImageGenerating
+    private let streakTracking: StreakTracking
+    private let speechRecognizer: SpeechRecognizing
     private let pageSize: Int
     private let prefetchThreshold: Int
     private var isLoadingMore = false
+    private var pronunciationResetTask: Task<Void, Never>?
 
     init(
-        repository: WordQuerying & WordStateMutating,
+        repository: WordQuerying & WordStateMutating & WordHistoryQuerying,
         audioPlayer: AudioPlayerProtocol,
         shareImageGenerator: ShareImageGenerating,
+        streakTracking: StreakTracking = UserDefaultsStreakTrackingService(),
+        speechRecognizer: SpeechRecognizing = AppleSpeechRecognitionService(),
         preferredAccent: AudioAccent = .uk,
         pageSize: Int = 20,
         prefetchThreshold: Int = 5
@@ -30,6 +38,8 @@ final class ReelViewModel {
         self.repository = repository
         self.audioPlayer = audioPlayer
         self.shareImageGenerator = shareImageGenerator
+        self.streakTracking = streakTracking
+        self.speechRecognizer = speechRecognizer
         self.selectedAccent = preferredAccent
         self.pageSize = pageSize
         self.prefetchThreshold = prefetchThreshold
@@ -48,6 +58,7 @@ final class ReelViewModel {
 
     func cardAppeared(_ entry: WordEntry, at localIndex: Int) async {
         audioPlayer.stop()
+        resetPronunciationCheck()
         await loadProgressIfNeeded(for: entry)
         try? await repository.markSeen(entryId: entry.id)
         try? await repository.setResumeIndex(entry.sortIndex)
@@ -73,6 +84,58 @@ final class ReelViewModel {
         try? audioPlayer.play(audioFileName: fileName)
     }
 
+    /// Called when the user presses down on the mic button (WhatsApp-style
+    /// press-and-hold). Requests permission on first use, then starts
+    /// capturing audio for the duration of the press.
+    func beginPronunciationCheck(for entry: WordEntry) async {
+        guard pronunciationState == .idle else { return }
+        pronunciationResetTask?.cancel()
+        audioPlayer.stop()
+        // Placeholder state while authorization is (usually instantly)
+        // confirmed — also blocks a second press-down from racing in.
+        pronunciationState = .processing
+
+        guard await speechRecognizer.requestAuthorization() else {
+            pronunciationState = .incorrect(transcript: "")
+            scheduleReturnToIdle()
+            return
+        }
+        do {
+            try speechRecognizer.startRecording()
+            pronunciationState = .recording
+        } catch {
+            pronunciationState = .incorrect(transcript: "")
+            scheduleReturnToIdle()
+        }
+    }
+
+    /// Called when the user releases the mic button. Stops capturing and
+    /// validates the transcript against the current word.
+    func endPronunciationCheck(for entry: WordEntry) async {
+        guard pronunciationState == .recording else { return }
+        pronunciationState = .processing
+
+        let transcript = (try? await speechRecognizer.stopRecording()) ?? ""
+        pronunciationState = PronunciationMatcher.isMatch(transcript: transcript, target: entry.word)
+            ? .correct
+            : .incorrect(transcript: transcript)
+        scheduleReturnToIdle()
+    }
+
+    private func resetPronunciationCheck() {
+        pronunciationResetTask?.cancel()
+        pronunciationState = .idle
+    }
+
+    private func scheduleReturnToIdle() {
+        pronunciationResetTask?.cancel()
+        pronunciationResetTask = Task {
+            try? await Task.sleep(for: .seconds(1.5))
+            guard !Task.isCancelled else { return }
+            pronunciationState = .idle
+        }
+    }
+
     func shareCurrentCard(_ entry: WordEntry) {
         guard let image = shareImageGenerator.image(for: entry) else { return }
         pendingShare = ShareableImage(image: image)
@@ -80,6 +143,18 @@ final class ReelViewModel {
 
     /// Stubbed per product request — detail sheet to be attached later.
     func infoTapped(for entry: WordEntry) {}
+
+    /// Shows the streak panel for 5 seconds on the first launch of a calendar
+    /// day, then auto-dismisses it. Refreshes the streak count either way.
+    func presentStreakPanelIfNeeded() async {
+        let isFirstOpenToday = streakTracking.recordAppOpened()
+        streakSummary = streakTracking.currentSummary()
+        guard isFirstOpenToday else { return }
+
+        isStreakPanelVisible = true
+        try? await Task.sleep(for: .seconds(5))
+        isStreakPanelVisible = false
+    }
 
     private func loadProgressIfNeeded(for entry: WordEntry, forceReload: Bool = false) async {
         guard forceReload || progressByEntryId[entry.id] == nil else { return }

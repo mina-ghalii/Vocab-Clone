@@ -49,6 +49,13 @@ struct WordCardView: View {
                     .padding(.horizontal, 32)
                 }
 
+                MicButtonView(
+                    state: viewModel.pronunciationState,
+                    onPress: { Task { await viewModel.beginPronunciationCheck(for: entry) } },
+                    onRelease: { Task { await viewModel.endPronunciationCheck(for: entry) } }
+                )
+                .padding(.top, 40)
+
                 Spacer()
                 Spacer()
 

@@ -4,7 +4,7 @@ import SwiftData
 /// SwiftData-backed implementation of the word read/write protocols. This is the
 /// only place in the app that talks to `ModelContext` directly — swapping persistence
 /// technology later means replacing this one file, nothing upstream.
-final class SwiftDataWordRepository: WordQuerying, WordStateMutating {
+final class SwiftDataWordRepository: WordQuerying, WordStateMutating, WordHistoryQuerying {
     private static let resumeIndexKey = "reel.resumeIndex"
 
     private let modelContext: ModelContext
@@ -81,5 +81,54 @@ final class SwiftDataWordRepository: WordQuerying, WordStateMutating {
         let created = WordProgress(entryId: entryId)
         modelContext.insert(created)
         return created
+    }
+
+    // MARK: - WordHistoryQuerying
+
+    func seenEntries() async throws -> [WordHistoryItem] {
+        try historyItems(
+            matching: FetchDescriptor<WordProgress>(
+                predicate: #Predicate { $0.isSeen },
+                sortBy: [SortDescriptor(\.seenAt, order: .reverse)]
+            ),
+            date: \.seenAt
+        )
+    }
+
+    func likedEntries() async throws -> [WordHistoryItem] {
+        try historyItems(
+            matching: FetchDescriptor<WordProgress>(
+                predicate: #Predicate { $0.isLiked },
+                sortBy: [SortDescriptor(\.likedAt, order: .reverse)]
+            ),
+            date: \.likedAt
+        )
+    }
+
+    func savedEntries() async throws -> [WordHistoryItem] {
+        try historyItems(
+            matching: FetchDescriptor<WordProgress>(
+                predicate: #Predicate { $0.isSaved },
+                sortBy: [SortDescriptor(\.savedAt, order: .reverse)]
+            ),
+            date: \.savedAt
+        )
+    }
+
+    /// Fetches the progress rows matching `descriptor`, then joins each one to its
+    /// seeded `WordEntry` in a single batched fetch (rather than one fetch per row).
+    private func historyItems(
+        matching descriptor: FetchDescriptor<WordProgress>,
+        date dateKeyPath: KeyPath<WordProgress, Date?>
+    ) throws -> [WordHistoryItem] {
+        let progresses = try modelContext.fetch(descriptor)
+        let ids = Set(progresses.map(\.entryId))
+        let entryDescriptor = FetchDescriptor<WordEntry>(predicate: #Predicate { ids.contains($0.id) })
+        let entriesById = Dictionary(uniqueKeysWithValues: try modelContext.fetch(entryDescriptor).map { ($0.id, $0) })
+
+        return progresses.compactMap { progress in
+            guard let entry = entriesById[progress.entryId] else { return nil }
+            return WordHistoryItem(entry: entry, progress: progress, date: progress[keyPath: dateKeyPath])
+        }
     }
 }
