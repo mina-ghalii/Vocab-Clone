@@ -14,23 +14,19 @@ struct PersonalizationSignals: Codable, Equatable {
     static let neutral = PersonalizationSignals(targetLevel: .a2)
 }
 
-#if DEBUG
 extension PersonalizationSignals {
-    private static let storageKey = "debug.personalizationSignals"
+    private static let storageKey = "personalization.signals"
 
-    /// Debug-only: stashes the resolved signals (and which source produced them)
-    /// so the reel can display what onboarding actually inferred. Remove alongside
-    /// the debug badge in `WordCardView`.
-    func saveForDebugging(source: String, to defaults: UserDefaults = .standard) {
+    /// Persists the resolved signals as JSON in `UserDefaults`, mirroring
+    /// `OnboardingProfile.save`. This is the durable "current" reference a
+    /// retest overwrites, not a debug-only convenience.
+    func save(to defaults: UserDefaults = .standard) {
         guard let data = try? JSONEncoder().encode(self) else { return }
         defaults.set(data, forKey: Self.storageKey)
-        defaults.set(source, forKey: Self.storageKey + ".source")
     }
 
-    static func loadForDebugging(from defaults: UserDefaults = .standard) -> (signals: PersonalizationSignals, source: String)? {
-        guard let data = defaults.data(forKey: storageKey),
-              let signals = try? JSONDecoder().decode(PersonalizationSignals.self, from: data) else { return nil }
-        return (signals, defaults.string(forKey: storageKey + ".source") ?? "unknown")
+    static func load(from defaults: UserDefaults = .standard) -> PersonalizationSignals? {
+        guard let data = defaults.data(forKey: storageKey) else { return nil }
+        return try? JSONDecoder().decode(PersonalizationSignals.self, from: data)
     }
 }
-#endif

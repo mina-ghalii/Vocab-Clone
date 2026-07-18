@@ -8,3 +8,9 @@ protocol WordSeeding {
 protocol WordSeedProviding {
     func loadEntries() throws -> [WordEntry]
 }
+
+/// Re-derives personalized order for words already seeded into the store,
+/// unlike `WordSeeding`, which only ever runs once against an empty store.
+protocol WordReseeding {
+    func reseed(signals: PersonalizationSignals) async throws
+}

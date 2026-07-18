@@ -160,7 +160,7 @@ enum FakeSpeechRecognizerError: Error {
 /// Scripted `VocabularyLevelAssessing` fake: lets tests dictate the result
 /// returned (or error thrown) for a placement-test run.
 final class FakeLevelAssessor: VocabularyLevelAssessing {
-    var resultToReturn = QuizResult(correctCount: 0, totalCount: 0, levelTitle: "Beginner (A1)", summary: "")
+    var resultToReturn = QuizResult(correctCount: 0, totalCount: 0, assessedLevel: .a1, levelTitle: "Beginner (A1)", summary: "")
     var errorToThrow: Error?
 
     private(set) var assessLevelCallCount = 0

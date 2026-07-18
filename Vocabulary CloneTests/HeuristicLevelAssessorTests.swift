@@ -24,6 +24,7 @@ final class HeuristicLevelAssessorTests: XCTestCase {
 
         XCTAssertEqual(result.correctCount, 0)
         XCTAssertEqual(result.totalCount, 0)
+        XCTAssertEqual(result.assessedLevel, .a1)
         XCTAssertEqual(result.levelTitle, "Beginner (A1)")
     }
 
@@ -38,28 +39,30 @@ final class HeuristicLevelAssessorTests: XCTestCase {
 
         XCTAssertEqual(result.correctCount, 2)
         XCTAssertEqual(result.totalCount, 3)
+        XCTAssertEqual(result.assessedLevel, .b1)
         XCTAssertEqual(result.levelTitle, "Intermediate (B1)")
     }
 
     func testDifficultyBandBoundaries() async throws {
-        let cases: [(difficulty: Double, expectedLevel: String)] = [
-            (0.0, "Beginner (A1)"),
-            (0.19, "Beginner (A1)"),
-            (0.2, "Elementary (A2)"),
-            (0.39, "Elementary (A2)"),
-            (0.4, "Intermediate (B1)"),
-            (0.54, "Intermediate (B1)"),
-            (0.55, "Upper Intermediate (B2)"),
-            (0.69, "Upper Intermediate (B2)"),
-            (0.7, "Advanced (C1)"),
-            (1.0, "Advanced (C1)"),
+        let cases: [(difficulty: Double, expectedLevel: CEFRLevel, expectedTitle: String)] = [
+            (0.0, .a1, "Beginner (A1)"),
+            (0.19, .a1, "Beginner (A1)"),
+            (0.2, .a2, "Elementary (A2)"),
+            (0.39, .a2, "Elementary (A2)"),
+            (0.4, .b1, "Intermediate (B1)"),
+            (0.54, .b1, "Intermediate (B1)"),
+            (0.55, .b2, "Upper Intermediate (B2)"),
+            (0.69, .b2, "Upper Intermediate (B2)"),
+            (0.7, .c1, "Advanced (C1)"),
+            (1.0, .c1, "Advanced (C1)"),
         ]
 
         for testCase in cases {
             let result = try await HeuristicLevelAssessor().assessLevel(
                 from: [makeAnswer(difficulty: testCase.difficulty, isCorrect: true)]
             )
-            XCTAssertEqual(result.levelTitle, testCase.expectedLevel, "difficulty \(testCase.difficulty)")
+            XCTAssertEqual(result.assessedLevel, testCase.expectedLevel, "difficulty \(testCase.difficulty)")
+            XCTAssertEqual(result.levelTitle, testCase.expectedTitle, "difficulty \(testCase.difficulty)")
         }
     }
 

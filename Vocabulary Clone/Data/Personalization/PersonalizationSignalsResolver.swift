@@ -16,15 +16,11 @@ enum PersonalizationSignalsResolver {
         aiGenerator: LevelInferenceGenerator
     ) async -> PersonalizationSignals {
         if let generated = try? await aiGenerator.generateSignals(for: profile, placementWords: placementWords) {
-            #if DEBUG
-            generated.saveForDebugging(source: "Apple AI")
-            #endif
+            generated.save()
             return generated
         }
         let mapped = OnboardingProfileMapper.map(profile, placementWords: placementWords)
-        #if DEBUG
-        mapped.saveForDebugging(source: "rule-based fallback")
-        #endif
+        mapped.save()
         return mapped
     }
 }

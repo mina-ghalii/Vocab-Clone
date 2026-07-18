@@ -5,10 +5,15 @@ import SwiftUI
 /// tapped answer auto-advances to the next question (see `QuizViewModel`);
 /// the last question hands off to `QuizResultView` once the level assessor finishes.
 struct QuizView: View {
-    @State private var viewModel = QuizViewModel()
+    @State private var viewModel: QuizViewModel
     let onClose: () -> Void
 
     @Environment(\.readingTheme) private var theme
+
+    init(viewModel: QuizViewModel = QuizViewModel(), onClose: @escaping () -> Void) {
+        _viewModel = State(initialValue: viewModel)
+        self.onClose = onClose
+    }
 
     var body: some View {
         ZStack {

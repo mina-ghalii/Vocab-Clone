@@ -88,7 +88,7 @@ final class QuizViewModelTests: XCTestCase {
 
     func testFinishesAndAssessesLevelAfterLastQuestion() async throws {
         let assessor = FakeLevelAssessor()
-        assessor.resultToReturn = QuizResult(correctCount: 1, totalCount: 1, levelTitle: "Advanced (C1)", summary: "great job")
+        assessor.resultToReturn = QuizResult(correctCount: 1, totalCount: 1, assessedLevel: .c1, levelTitle: "Advanced (C1)", summary: "great job")
         let viewModel = QuizViewModel(
             questions: makeQuestions(count: 1),
             levelAssessor: assessor,

@@ -8,6 +8,7 @@ struct ReelView: View {
     var showsWelcomeCard: Bool = false
 
     @State private var isProfilePresented = false
+    @State private var scrollPosition: String?
 
     @AppStorage("hasSeenReelTutorial") private var hasSeenReelTutorial = false
     @State private var isTutorialPresented = false
@@ -42,6 +43,7 @@ struct ReelView: View {
                 }
                 .scrollTargetBehavior(.paging)
                 .scrollIndicators(.hidden)
+                .scrollPosition(id: $scrollPosition)
             }
             .ignoresSafeArea()
 
@@ -84,7 +86,13 @@ struct ReelView: View {
                 repository: viewModel.repository,
                 audioPlayer: viewModel.audioPlayer,
                 shareImageGenerator: viewModel.shareImageGenerator,
-                preferredAccent: viewModel.selectedAccent
+                preferredAccent: viewModel.selectedAccent,
+                onWordsReseeded: {
+                    Task {
+                        await viewModel.restart()
+                        scrollPosition = viewModel.loadedEntries.first?.id
+                    }
+                }
             )
             .environment(\.readingTheme, theme)
         }

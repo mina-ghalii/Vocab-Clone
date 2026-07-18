@@ -32,11 +32,6 @@
 			path = "Vocabulary CloneTests";
 			sourceTree = "<group>";
 		};
-		0FDDEDC63006286E00095CA0 /* Vocabulary CloneUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Vocabulary CloneUITests";
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +57,6 @@
 			children = (
 				0FDDEDAE3006286D00095CA0 /* Vocabulary Clone */,
 				0FDDEDBC3006286E00095CA0 /* Vocabulary CloneTests */,
-				0FDDEDC63006286E00095CA0 /* Vocabulary CloneUITests */,
 				0FDDEDAD3006286D00095CA0 /* Products */,
 			);
 			sourceTree = "<group>";

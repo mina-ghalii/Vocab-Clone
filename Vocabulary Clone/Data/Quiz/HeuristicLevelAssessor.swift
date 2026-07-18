@@ -8,23 +8,25 @@ struct HeuristicLevelAssessor: VocabularyLevelAssessing {
     func assessLevel(from answers: [QuizAnswerRecord]) async throws -> QuizResult {
         let correctCount = answers.filter(\.isCorrect).count
         let highestCorrectDifficulty = answers.filter(\.isCorrect).map(\.question.difficulty).max() ?? 0
-        let levelTitle = Self.levelTitle(forDifficulty: highestCorrectDifficulty)
+        let level = CEFRLevel.forDifficulty(highestCorrectDifficulty)
+        let levelTitle = Self.levelTitle(for: level)
 
         return QuizResult(
             correctCount: correctCount,
             totalCount: answers.count,
+            assessedLevel: level,
             levelTitle: levelTitle,
             summary: "You answered \(correctCount) of \(answers.count) words correctly, placing you around \(levelTitle). Keep practicing to climb higher."
         )
     }
 
-    private static func levelTitle(forDifficulty difficulty: Double) -> String {
-        switch difficulty {
-        case ..<0.2: return "Beginner (A1)"
-        case ..<0.4: return "Elementary (A2)"
-        case ..<0.55: return "Intermediate (B1)"
-        case ..<0.7: return "Upper Intermediate (B2)"
-        default: return "Advanced (C1)"
+    private static func levelTitle(for level: CEFRLevel) -> String {
+        switch level {
+        case .a1: return "Beginner (A1)"
+        case .a2: return "Elementary (A2)"
+        case .b1: return "Intermediate (B1)"
+        case .b2: return "Upper Intermediate (B2)"
+        case .c1: return "Advanced (C1)"
         }
     }
 }

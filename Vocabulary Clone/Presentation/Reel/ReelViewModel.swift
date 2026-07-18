@@ -59,6 +59,13 @@ final class ReelViewModel {
         }
     }
 
+    /// Re-fetches from scratch — used after a retest reorders the whole store,
+    /// since `start()` otherwise no-ops once a window is already loaded.
+    func restart() async {
+        loadedEntries = []
+        await start()
+    }
+
     func cardAppeared(_ entry: WordEntry, at localIndex: Int) async {
         audioPlayer.stop()
         resetPronunciationCheck()

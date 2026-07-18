@@ -15,6 +15,8 @@ final class QuizViewModel {
 
     private let levelAssessor: VocabularyLevelAssessing
     private let answerRevealDelay: Duration
+    private let reseeder: WordReseeding?
+    private let onReseedCompleted: (() -> Void)?
 
     var currentQuestion: QuizQuestion { questions[currentIndex] }
 
@@ -29,11 +31,15 @@ final class QuizViewModel {
     init(
         questions: [QuizQuestion] = QuizQuestionBank.questions,
         levelAssessor: VocabularyLevelAssessing = AppleIntelligenceLevelAssessor(),
-        answerRevealDelay: Duration = .seconds(2)
+        answerRevealDelay: Duration = .seconds(2),
+        reseeder: WordReseeding? = nil,
+        onReseedCompleted: (() -> Void)? = nil
     ) {
         self.questions = questions
         self.levelAssessor = levelAssessor
         self.answerRevealDelay = answerRevealDelay
+        self.reseeder = reseeder
+        self.onReseedCompleted = onReseedCompleted
     }
 
     func selectAnswer(_ index: Int) {
@@ -62,7 +68,12 @@ final class QuizViewModel {
     @MainActor
     private func finish() async {
         isAssessing = true
-        result = try? await levelAssessor.assessLevel(from: answers)
+        let assessed = try? await levelAssessor.assessLevel(from: answers)
+        if let assessed, let reseeder {
+            try? await reseeder.reseed(signals: PersonalizationSignals(targetLevel: assessed.assessedLevel))
+            onReseedCompleted?()
+        }
+        result = assessed
         isAssessing = false
     }
 }

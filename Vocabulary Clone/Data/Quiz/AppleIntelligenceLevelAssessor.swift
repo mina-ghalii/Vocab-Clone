@@ -15,6 +15,8 @@ struct AppleIntelligenceLevelAssessor: VocabularyLevelAssessing {
         }
 
         let correctCount = answers.filter(\.isCorrect).count
+        let highestCorrectDifficulty = answers.filter(\.isCorrect).map(\.question.difficulty).max() ?? 0
+        let assessedLevel = CEFRLevel.forDifficulty(highestCorrectDifficulty)
         let transcript = answers
             .map { "\($0.question.word) (difficulty \(String(format: "%.2f", $0.question.difficulty))): \($0.isCorrect ? "correct" : "incorrect")" }
             .joined(separator: "\n")
@@ -35,6 +37,7 @@ struct AppleIntelligenceLevelAssessor: VocabularyLevelAssessing {
             return QuizResult(
                 correctCount: correctCount,
                 totalCount: answers.count,
+                assessedLevel: assessedLevel,
                 levelTitle: response.content.levelTitle,
                 summary: response.content.summary
             )

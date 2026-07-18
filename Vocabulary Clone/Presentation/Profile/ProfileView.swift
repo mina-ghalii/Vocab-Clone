@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// The screen shown when the reel's profile icon is tapped: a close button,
 /// a "take a test" row, and cards for the three word lists (Favorites, Your
@@ -8,6 +9,7 @@ struct ProfileView: View {
     let audioPlayer: AudioPlayerProtocol
     let shareImageGenerator: ShareImageGenerating
     let preferredAccent: AudioAccent
+    var onWordsReseeded: () -> Void = {}
 
     @State private var presentedKind: WordListKind?
     @State private var isTestPresented = false
@@ -15,6 +17,7 @@ struct ProfileView: View {
     @AppStorage("readingTheme") private var readingThemeRawValue = ReadingTheme.dark.rawValue
     @Environment(\.readingTheme) private var theme
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         ZStack {
@@ -43,8 +46,17 @@ struct ProfileView: View {
         }
         .preferredColorScheme(theme.colorScheme)
         .fullScreenCover(isPresented: $isTestPresented) {
-            QuizView(onClose: { isTestPresented = false })
-                .environment(\.readingTheme, theme)
+            QuizView(
+                viewModel: QuizViewModel(
+                    reseeder: SwiftDataWordReseeder(
+                        modelContext: modelContext,
+                        profile: OnboardingProfile.load() ?? OnboardingProfile()
+                    ),
+                    onReseedCompleted: onWordsReseeded
+                ),
+                onClose: { isTestPresented = false }
+            )
+            .environment(\.readingTheme, theme)
         }
     }
 

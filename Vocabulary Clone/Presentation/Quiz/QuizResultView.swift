@@ -53,6 +53,7 @@ struct QuizResultView: View {
         result: QuizResult(
             correctCount: 7,
             totalCount: 10,
+            assessedLevel: .b2,
             levelTitle: "Upper Intermediate (B2)",
             summary: "You handled everyday and moderately advanced vocabulary with ease, and stumbled only on the most advanced words. Focus on expanding your C1 vocabulary next."
         ),

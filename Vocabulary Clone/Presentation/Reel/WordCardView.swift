@@ -29,10 +29,10 @@ struct WordCardView: View {
     }
 
     private var debugInferredLevel: String {
-        guard let (signals, source) = PersonalizationSignals.loadForDebugging() else {
+        guard let signals = PersonalizationSignals.load() else {
             return "Inferred: none saved"
         }
-        return "Inferred: \(signals.targetLevel.rawValue.uppercased()) (\(source))"
+        return "Inferred: \(signals.targetLevel.rawValue.uppercased())"
     }
     #endif
 

@@ -18,7 +18,7 @@ struct OnboardingWelcomeView: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.white)
 
-                Text("Learn 10,000+ new words with a new daily habit that takes just 1 minute")
+                Text("Learn 5,000+ new words with a new daily habit that takes just 1 minute")
                     .font(.system(size: 17))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.white.opacity(0.7))
@@ -28,8 +28,6 @@ struct OnboardingWelcomeView: View {
 
             Spacer(minLength: 24)
 
-            statsRow
-                .padding(.bottom, 28)
 
             Button(action: onGetStarted) {
                 Text("Get started")
@@ -45,17 +43,6 @@ struct OnboardingWelcomeView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(red: 0.169, green: 0.169, blue: 0.169).ignoresSafeArea())
-    }
-
-    private var statsRow: some View {
-        HStack(spacing: 0) {
-            statColumn(value: "350 million", label: "words learned")
-            Spacer()
-            ratingBadge
-            Spacer()
-            statColumn(value: "14 million", label: "downloads")
-        }
-        .padding(.horizontal, 28)
     }
 
     private func statColumn(value: String, label: String) -> some View {
