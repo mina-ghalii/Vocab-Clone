@@ -21,3 +21,12 @@ final class WordEntry {
         self.senses = senses
     }
 }
+
+extension WordEntry {
+    /// The easiest CEFR band this word is attested at, read straight off its own
+    /// senses (a few source rows carry a blank `cefr`, which `CEFRLevel(rawValue:)`
+    /// filters out rather than treating as a level).
+    var cefrLevel: CEFRLevel? {
+        senses.compactMap { CEFRLevel(rawValue: $0.cefr) }.min()
+    }
+}

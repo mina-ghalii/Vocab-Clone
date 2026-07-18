@@ -15,10 +15,53 @@ struct WordCardView: View {
         return viewModel.selectedAccent == .uk ? primarySense.phonBr : primarySense.phonNAm
     }
 
+    #if DEBUG
+    private static let debugTags: [String: WordTags] = (try? WordTagsLoader().load()) ?? [:]
+
+    private var debugLevelAndTags: String {
+        let level = entry.cefrLevel?.rawValue.uppercased() ?? "?"
+        let tags = Self.debugTags[entry.word]?.topics.joined(separator: ", ")
+        return "\(level) · \(tags?.isEmpty == false ? tags! : "no tags")"
+    }
+
+    private var debugUserLevel: String {
+        "Self-reported: \(OnboardingProfile.load()?.vocabularyLevel ?? "unset")"
+    }
+
+    private var debugInferredLevel: String {
+        guard let (signals, source) = PersonalizationSignals.loadForDebugging() else {
+            return "Inferred: none saved"
+        }
+        return "Inferred: \(signals.targetLevel.rawValue.uppercased()) (\(source))"
+    }
+    #endif
+
     var body: some View {
         ZStack {
             theme.background
                 .ignoresSafeArea()
+
+            #if DEBUG
+            VStack {
+                HStack {
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(debugLevelAndTags)
+                        Text(debugUserLevel)
+                        Text(debugInferredLevel)
+                    }
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.yellow.opacity(0.9), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 60)
+                Spacer()
+            }
+            .zIndex(1)
+            #endif
 
             VStack(spacing: 0) {
                 Spacer()

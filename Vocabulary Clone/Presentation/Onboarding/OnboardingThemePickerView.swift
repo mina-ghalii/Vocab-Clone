@@ -3,16 +3,38 @@ import SwiftUI
 /// Onboarding screen for picking the reading theme. Dark is preselected to match
 /// the rest of onboarding, so Continue is enabled immediately. The chosen theme
 /// is applied to the reel via `ReadingTheme`.
+///
+/// Reused from the Profile screen to let the user change their theme later —
+/// `initialTheme`/`headline`/`continueButtonTitle` adapt the copy and starting
+/// selection, and `onSelect` fires on every tap so callers can apply the theme
+/// live instead of waiting for `onContinue`.
 struct OnboardingThemePickerView: View {
+    var headline: String = "Which theme would\nyou like to start with?"
+    var continueButtonTitle: String = "Continue"
+    var onSelect: ((ReadingTheme) -> Void)?
     let onContinue: (ReadingTheme) -> Void
 
-    @State private var selectedTheme: ReadingTheme = .dark
+    @State private var selectedTheme: ReadingTheme
+
+    init(
+        headline: String = "Which theme would\nyou like to start with?",
+        continueButtonTitle: String = "Continue",
+        initialTheme: ReadingTheme = .dark,
+        onSelect: ((ReadingTheme) -> Void)? = nil,
+        onContinue: @escaping (ReadingTheme) -> Void
+    ) {
+        self.headline = headline
+        self.continueButtonTitle = continueButtonTitle
+        self.onSelect = onSelect
+        self.onContinue = onContinue
+        _selectedTheme = State(initialValue: initialTheme)
+    }
 
     private let columns = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Which theme would\nyou like to start with?")
+            Text(headline)
                 .font(.system(size: 30, weight: .bold, design: .serif))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white)
@@ -29,7 +51,7 @@ struct OnboardingThemePickerView: View {
             Spacer()
 
             Button(action: { onContinue(selectedTheme) }) {
-                Text("Continue")
+                Text(continueButtonTitle)
                     .font(.system(size: 19, weight: .bold))
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
@@ -45,7 +67,10 @@ struct OnboardingThemePickerView: View {
     }
 
     private func themeCard(_ candidate: ReadingTheme) -> some View {
-        Button(action: { selectedTheme = candidate }) {
+        Button(action: {
+            selectedTheme = candidate
+            onSelect?(candidate)
+        }) {
             ZStack(alignment: .topTrailing) {
                 ZStack {
                     candidate.background
@@ -55,6 +80,10 @@ struct OnboardingThemePickerView: View {
                 }
                 .aspectRatio(0.69, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 1.5)
+                )
 
                 if selectedTheme == candidate {
                     Image(systemName: "checkmark")

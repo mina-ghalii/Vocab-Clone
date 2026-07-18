@@ -2,7 +2,7 @@ import Foundation
 
 /// Deterministic, model-free level assessment: the CEFR band is read off the
 /// hardest question the learner still answered correctly, on the same 0
-/// (a1) ... 1 (c1+) scale as `WordTags.difficulty`. Used as the on-device
+/// (a1) ... 1 (c1+) scale as `QuizQuestion.difficulty`. Used as the on-device
 /// model's fallback when Apple Intelligence isn't available on the device.
 struct HeuristicLevelAssessor: VocabularyLevelAssessing {
     func assessLevel(from answers: [QuizAnswerRecord]) async throws -> QuizResult {

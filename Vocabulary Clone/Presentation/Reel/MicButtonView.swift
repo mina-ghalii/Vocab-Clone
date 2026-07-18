@@ -36,6 +36,7 @@ struct MicButtonView: View {
                 .foregroundStyle(iconColor)
                 .contentTransition(.symbolEffect(.replace))
         }
+        .tutorialAnchor(.mic)
         .frame(width: diameter + 60, height: diameter + 60)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: state)
         .contentShape(Circle())
@@ -73,7 +74,7 @@ struct MicButtonView: View {
 
     private func pulseRing(delay: Double) -> some View {
         Circle()
-            .stroke(Color.red.opacity(0.45), lineWidth: 2)
+            .stroke(Color.green.opacity(0.45), lineWidth: 2)
             .frame(width: diameter, height: diameter)
             .scaleEffect(isPulsing ? 1.9 : 1.0)
             .opacity(isPulsing ? 0 : 0.7)
@@ -101,7 +102,7 @@ struct MicButtonView: View {
     private var backgroundColor: Color {
         switch state {
         case .idle, .processing: return theme.chipSelectedBackground
-        case .recording: return .red
+        case .recording: return .green
         case .correct: return .green
         case .incorrect: return .red
         }

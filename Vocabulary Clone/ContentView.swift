@@ -108,7 +108,3 @@ struct ContentView: View {
         isSeeding = false
     }
 }
-
-//#Preview {
-//    ContentView()
-//}

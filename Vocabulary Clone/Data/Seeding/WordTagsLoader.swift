@@ -1,9 +1,11 @@
 import Foundation
 
-/// Loads the offline word enrichment tags (`oxford_5000_tags.json`) from the bundle.
-/// Separate from `JSONWordSeedSource` since tags are an optional personalization
-/// input, not core seed content — a missing/unreadable tags file degrades
-/// personalization gracefully rather than blocking seeding.
+/// Loads the offline word enrichment tags — `topics`, one entry per sense —
+/// from `oxford_5000.json` and collapses them down to one `WordTags` per
+/// headword (every sense of a word carries the same `topics`, so any one of
+/// them will do). Goes through its own decode of the shared file, rather than
+/// reusing `JSONWordSeedSource`'s, so a missing/unreadable file degrades
+/// personalization gracefully instead of blocking seeding.
 struct WordTagsLoader {
     enum LoadError: Error {
         case resourceNotFound
@@ -12,7 +14,7 @@ struct WordTagsLoader {
     private let resourceName: String
     private let bundle: Bundle
 
-    init(resourceName: String = "oxford_5000_tags", bundle: Bundle = .main) {
+    init(resourceName: String = "oxford_5000", bundle: Bundle = .main) {
         self.resourceName = resourceName
         self.bundle = bundle
     }
@@ -22,6 +24,14 @@ struct WordTagsLoader {
             throw LoadError.resourceNotFound
         }
         let data = try Data(contentsOf: url)
-        return try JSONDecoder().decode([String: WordTags].self, from: data)
+        let raw = try JSONDecoder().decode([String: RawTaggedWord].self, from: data)
+        return raw.values.reduce(into: [:]) { result, entry in
+            result[entry.word] = WordTags(topics: entry.topics)
+        }
     }
+}
+
+private struct RawTaggedWord: Codable {
+    let word: String
+    let topics: [String]
 }

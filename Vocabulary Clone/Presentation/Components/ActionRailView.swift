@@ -15,23 +15,24 @@ struct ActionRailView: View {
     var body: some View {
         HStack {
             Spacer()
-            button("info.circle", action: onInfo)
+            button("info.circle", target: .info, action: onInfo)
             Spacer()
-            button("square.and.arrow.up", action: onShare)
+            button("square.and.arrow.up", target: .share, action: onShare)
             Spacer()
-            button(isLiked ? "heart.fill" : "heart", tint: isLiked ? .red : theme.iconTint, action: onLike)
+            button(isLiked ? "heart.fill" : "heart", target: .like, tint: isLiked ? .red : theme.iconTint, action: onLike)
             Spacer()
-            button(isSaved ? "bookmark.fill" : "bookmark", action: onSave)
+            button(isSaved ? "bookmark.fill" : "bookmark", target: .save, action: onSave)
             Spacer()
         }
     }
 
-    private func button(_ systemImage: String, tint: Color? = nil, action: @escaping () -> Void) -> some View {
+    private func button(_ systemImage: String, target: TutorialTarget, tint: Color? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.system(size: 22))
                 .foregroundStyle(tint ?? theme.iconTint)
                 .frame(width: 44, height: 44)
         }
+        .tutorialAnchor(target)
     }
 }

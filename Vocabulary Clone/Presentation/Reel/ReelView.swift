@@ -9,6 +9,9 @@ struct ReelView: View {
 
     @State private var isProfilePresented = false
 
+    @AppStorage("hasSeenReelTutorial") private var hasSeenReelTutorial = false
+    @State private var isTutorialPresented = false
+
     @Environment(\.readingTheme) private var theme
 
     init(viewModel: ReelViewModel, showsWelcomeCard: Bool = false) {
@@ -31,6 +34,7 @@ struct ReelView: View {
                                 .frame(width: proxy.size.width, height: proxy.size.height)
                                 .onAppear {
                                     Task { await viewModel.cardAppeared(entry, at: index) }
+                                    if index == 0 { scheduleTutorialIfNeeded() }
                                 }
                         }
                     }
@@ -46,6 +50,11 @@ struct ReelView: View {
                 .padding(.top, 8)
                 .animation(.easeInOut(duration: 0.3), value: viewModel.isStreakPanelVisible)
         }
+        .overlayPreferenceValue(TutorialAnchorPreferenceKey.self) { anchors in
+            if isTutorialPresented {
+                ReelTutorialOverlay(anchors: anchors, onFinished: dismissTutorial)
+            }
+        }
         .background(theme.background)
         .preferredColorScheme(theme.colorScheme)
         .task {
@@ -57,6 +66,19 @@ struct ReelView: View {
         .sheet(item: $viewModel.pendingShare) { shareable in
             ActivityView(activityItems: [shareable.image])
         }
+        .sheet(item: $viewModel.pendingInfo) { presentation in
+            WordInfoSheetView(
+                entry: presentation.entry,
+                selectedAccent: viewModel.selectedAccent,
+                onPlay: { viewModel.playCurrentAudio(for: presentation.entry) },
+                onSelectAccent: { viewModel.selectAccent($0) },
+                onDismiss: { viewModel.pendingInfo = nil }
+            )
+            .environment(\.readingTheme, theme)
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.hidden)
+            .presentationCornerRadius(28)
+        }
         .fullScreenCover(isPresented: $isProfilePresented) {
             ProfileView(
                 repository: viewModel.repository,
@@ -65,6 +87,30 @@ struct ReelView: View {
                 preferredAccent: viewModel.selectedAccent
             )
             .environment(\.readingTheme, theme)
+        }
+    }
+
+    /// Waits for the first card's layout to settle and, if a streak panel is
+    /// about to take over the top bar, for that to clear too — otherwise the
+    /// tutorial's first step would spotlight an empty top-left corner.
+    private func scheduleTutorialIfNeeded() {
+        guard !hasSeenReelTutorial, !isTutorialPresented else { return }
+        Task {
+            try? await Task.sleep(for: .seconds(0.6))
+            while viewModel.isStreakPanelVisible {
+                try? await Task.sleep(for: .seconds(0.3))
+            }
+            guard !hasSeenReelTutorial else { return }
+            withAnimation(.easeOut(duration: 0.3)) {
+                isTutorialPresented = true
+            }
+        }
+    }
+
+    private func dismissTutorial() {
+        hasSeenReelTutorial = true
+        withAnimation(.easeOut(duration: 0.25)) {
+            isTutorialPresented = false
         }
     }
 
@@ -89,5 +135,6 @@ struct ReelView: View {
                 .frame(width: 52, height: 52)
                 .background(theme.chipUnselectedBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
+        .tutorialAnchor(.profile)
     }
 }

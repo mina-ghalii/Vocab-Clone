@@ -1,12 +1,12 @@
 import FoundationModels
 
-/// Structured output shape for the on-device model: a single calibrated reading
+/// Structured output shape for the on-device model: a single calibrated CEFR
 /// level. `@Guide` both documents the field for the model and constrains it to
-/// a valid range — no free-text parsing.
+/// exactly `CEFRLevel`'s cases — no free-text parsing, no arbitrary decimal.
 @Generable
 struct GeneratedLevelAssessment {
-    @Guide(description: "The user's demonstrated reading level from 0 (complete beginner, CEFR A1) to 1 (expert, CEFR C1+)", .range(0...1))
-    var targetDifficulty: Double
+    @Guide(description: "The user's demonstrated CEFR reading level", .anyOf(CEFRLevel.allCases.map(\.rawValue)))
+    var level: String
 }
 
 /// Infers `PersonalizationSignals` using Apple's on-device Foundation Models
@@ -18,6 +18,7 @@ struct GeneratedLevelAssessment {
 struct LevelInferenceGenerator {
     enum GenerationError: Error {
         case modelUnavailable(SystemLanguageModel.Availability.UnavailableReason)
+        case unrecognizedLevel(String)
     }
 
     func generateSignals(for profile: OnboardingProfile, placementWords: [PlacementWord]) async throws -> PersonalizationSignals {
@@ -33,23 +34,27 @@ struct LevelInferenceGenerator {
             to: Self.prompt(for: profile, placementWords: placementWords),
             generating: GeneratedLevelAssessment.self
         )
-        return PersonalizationSignals(targetDifficulty: response.content.targetDifficulty)
+        // `.anyOf` constrains generation to CEFRLevel's raw values, so this should
+        // never actually miss — but the model's output is still external input.
+        guard let level = CEFRLevel(rawValue: response.content.level) else {
+            throw GenerationError.unrecognizedLevel(response.content.level)
+        }
+        return PersonalizationSignals(targetLevel: level)
     }
 
     private static let instructions = """
-    You infer a vocabulary-learning app user's reading level from a short placement \
+    You infer a vocabulary-learning app user's CEFR reading level from a short placement \
     checklist of real dictionary words spanning CEFR levels A1 to C1, plus their own \
     self-assessment. Weigh the checklist results more heavily than the self-assessment \
     — people often over- or under-estimate themselves, but which real words they \
-    recognize is direct evidence. targetDifficulty is 0 to 1, matching CEFR A1 (0) \
-    through C1 (0.8) and beyond toward C2 (1).
+    recognize is direct evidence.
     """
 
     private static func prompt(for profile: OnboardingProfile, placementWords: [PlacementWord]) -> String {
         var lines = ["Placement checklist results (word, CEFR band, recognized by user):"]
         for placementWord in placementWords {
             let knewIt = profile.knownPlacementWords.contains(placementWord.word)
-            lines.append("- \(placementWord.word) (\(placementWord.band.uppercased())): \(knewIt ? "recognized" : "not recognized")")
+            lines.append("- \(placementWord.word) (\(placementWord.band.rawValue.uppercased())): \(knewIt ? "recognized" : "not recognized")")
         }
         if let level = profile.vocabularyLevel {
             lines.append("Self-reported vocabulary level: \(level)")

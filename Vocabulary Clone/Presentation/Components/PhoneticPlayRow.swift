@@ -25,6 +25,7 @@ struct PhoneticPlayRow: View {
                     .font(.system(size: 17))
                     .foregroundStyle(theme.iconTint)
             }
+            .tutorialAnchor(.speaker)
 
             AccentToggle(title: "US", isSelected: selectedAccent == .us) {
                 onSelectAccent(.us)

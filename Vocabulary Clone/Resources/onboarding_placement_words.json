@@ -2,93 +2,75 @@
   "words": [
     {
       "word": "apple",
-      "band": "a1",
-      "difficulty": 0.0
+      "band": "a1"
     },
     {
       "word": "cheap",
-      "band": "a1",
-      "difficulty": 0.0
+      "band": "a1"
     },
     {
       "word": "travel",
-      "band": "a1",
-      "difficulty": 0.0
+      "band": "a1"
     },
     {
       "word": "employer",
-      "band": "a2",
-      "difficulty": 0.2
+      "band": "a2"
     },
     {
       "word": "experiment",
-      "band": "a2",
-      "difficulty": 0.2
+      "band": "a2"
     },
     {
       "word": "flying",
-      "band": "a2",
-      "difficulty": 0.2
+      "band": "a2"
     },
     {
       "word": "clause",
-      "band": "b1",
-      "difficulty": 0.4
+      "band": "b1"
     },
     {
       "word": "cottage",
-      "band": "b1",
-      "difficulty": 0.4
+      "band": "b1"
     },
     {
       "word": "viewer",
-      "band": "b1",
-      "difficulty": 0.4
+      "band": "b1"
     },
     {
       "word": "classic",
-      "band": "b2",
-      "difficulty": 0.6
+      "band": "b2"
     },
     {
       "word": "specify",
-      "band": "b2",
-      "difficulty": 0.6
+      "band": "b2"
     },
     {
       "word": "thorough",
-      "band": "b2",
-      "difficulty": 0.6
+      "band": "b2"
     },
     {
       "word": "amendment",
-      "band": "c1",
-      "difficulty": 0.8
+      "band": "c1"
     },
     {
       "word": "anonymous",
-      "band": "c1",
-      "difficulty": 0.8
+      "band": "c1"
     },
     {
       "word": "coastal",
-      "band": "c1",
-      "difficulty": 0.8
+      "band": "c1"
     },
     {
       "word": "enterprise",
-      "band": "c1",
-      "difficulty": 0.8
+      "band": "c1"
     },
     {
       "word": "explicit",
-      "band": "c1",
-      "difficulty": 0.8
+      "band": "c1"
     },
     {
       "word": "portfolio",
-      "band": "c1",
-      "difficulty": 0.8
+      "band": "c1"
     }
   ]
 }

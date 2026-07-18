@@ -11,6 +11,7 @@ final class ReelViewModel {
     private(set) var totalCount: Int = 0
     var selectedAccent: AudioAccent
     var pendingShare: ShareableImage?
+    var pendingInfo: WordInfoPresentation?
     private(set) var streakSummary: StreakSummary?
     private(set) var isStreakPanelVisible = false
     private(set) var pronunciationState: PronunciationCheckState = .idle
@@ -143,8 +144,9 @@ final class ReelViewModel {
         pendingShare = ShareableImage(image: image)
     }
 
-    /// Stubbed per product request — detail sheet to be attached later.
-    func infoTapped(for entry: WordEntry) {}
+    func infoTapped(for entry: WordEntry) {
+        pendingInfo = WordInfoPresentation(entry: entry)
+    }
 
     /// Shows the streak panel for 5 seconds on the first launch of a calendar
     /// day, then auto-dismisses it. Refreshes the streak count either way.

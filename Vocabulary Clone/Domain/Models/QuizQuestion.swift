@@ -26,7 +26,7 @@ struct QuizQuestion: Identifiable, Equatable {
     let promptSentence: String?
     let options: [String]
     let correctOptionIndex: Int
-    /// Same 0 (a1) ... 1 (c1+) scale as `WordTags.difficulty`, so a right/wrong
+    /// Same 0 (a1) ... 1 (c1+) scale as `WordEntry.cefrLevel`, so a right/wrong
     /// answer here is directly comparable to a reel word's difficulty.
     let difficulty: Double
 }

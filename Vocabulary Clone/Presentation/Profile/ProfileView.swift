@@ -11,6 +11,8 @@ struct ProfileView: View {
 
     @State private var presentedKind: WordListKind?
     @State private var isTestPresented = false
+    @State private var isChangingTheme = false
+    @AppStorage("readingTheme") private var readingThemeRawValue = ReadingTheme.dark.rawValue
     @Environment(\.readingTheme) private var theme
     @Environment(\.dismiss) private var dismiss
 
@@ -26,6 +28,14 @@ struct ProfileView: View {
                     shareImageGenerator: shareImageGenerator,
                     preferredAccent: preferredAccent,
                     onBack: { self.presentedKind = nil }
+                )
+            } else if isChangingTheme {
+                OnboardingThemePickerView(
+                    headline: "Choose your\nreading theme",
+                    continueButtonTitle: "Done",
+                    initialTheme: theme,
+                    onSelect: { readingThemeRawValue = $0.rawValue },
+                    onContinue: { _ in isChangingTheme = false }
                 )
             } else {
                 menu
@@ -47,6 +57,8 @@ struct ProfileView: View {
                 .foregroundStyle(theme.primaryText)
 
             takeTestRow
+
+            changeThemeRow
 
             vocabularyGrid
 
@@ -80,6 +92,33 @@ struct ProfileView: View {
                     .background(theme.chipUnselectedBackground, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
 
                 Text("Take a test to know your level")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(theme.primaryText)
+                    .multilineTextAlignment(.leading)
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(theme.secondaryText)
+            }
+            .padding(16)
+            .background(theme.chipUnselectedBackground.opacity(0.6), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+    }
+
+    private var changeThemeRow: some View {
+        Button {
+            isChangingTheme = true
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "circle.lefthalf.filled")
+                    .font(.system(size: 20))
+                    .foregroundStyle(theme.iconTint)
+                    .frame(width: 44, height: 44)
+                    .background(theme.chipUnselectedBackground, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                Text("Change reading theme")
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(theme.primaryText)
                     .multilineTextAlignment(.leading)

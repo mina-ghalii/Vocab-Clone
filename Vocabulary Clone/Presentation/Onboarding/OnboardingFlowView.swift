@@ -26,11 +26,21 @@ struct OnboardingFlowView: View {
     let audioPlayer: AudioPlayerProtocol
     let onFinished: (OnboardingProfile, ReadingTheme, AudioAccent) -> Void
 
+    @AppStorage("readingTheme") private var readingThemeRawValue = ReadingTheme.dark.rawValue
+
     @State private var step: Step = .welcome
     @State private var selectedTheme: ReadingTheme = .dark
     @State private var selectedAccent: AudioAccent = .uk
     @State private var profile = OnboardingProfile()
     @State private var placementWords = (try? PlacementWordsLoader().load()) ?? []
+
+    /// Applies the chosen theme the instant it's picked (rather than waiting
+    /// for `onFinished`), so the persisted theme is correct immediately instead
+    /// of only once the Reel view appears.
+    private func applyTheme(_ theme: ReadingTheme) {
+        selectedTheme = theme
+        readingThemeRawValue = theme.rawValue
+    }
 
     var body: some View {
         switch step {
@@ -82,10 +92,14 @@ struct OnboardingFlowView: View {
                 onContinue: { step = .themePicker }
             )
         case .themePicker:
-            OnboardingThemePickerView(onContinue: { theme in
-                selectedTheme = theme
-                step = .voicePicker
-            })
+            OnboardingThemePickerView(
+                initialTheme: selectedTheme,
+                onSelect: { theme in applyTheme(theme) },
+                onContinue: { theme in
+                    applyTheme(theme)
+                    step = .voicePicker
+                }
+            )
         case .voicePicker:
             OnboardingVoicePickerView(
                 audioPlayer: audioPlayer,

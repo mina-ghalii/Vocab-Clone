@@ -25,7 +25,7 @@ enum PersonalizedWordOrderer {
         let candidates = entries.filter { !excludedWords.contains($0.word) }
 
         let (atOrAboveLevel, belowLevel) = candidates.partitioned { entry in
-            difficulty(for: entry, tags: tags, fallback: signals.targetDifficulty) >= signals.targetDifficulty
+            (entry.cefrLevel ?? signals.targetLevel) >= signals.targetLevel
         }
 
         let (topicMatched, rest) = atOrAboveLevel.partitioned { entry in
@@ -39,10 +39,6 @@ enum PersonalizedWordOrderer {
             entry.sortIndex = index
         }
         return ordered
-    }
-
-    private static func difficulty(for entry: WordEntry, tags: [String: WordTags], fallback: Double) -> Double {
-        tags[entry.word]?.difficulty ?? fallback
     }
 }
 
