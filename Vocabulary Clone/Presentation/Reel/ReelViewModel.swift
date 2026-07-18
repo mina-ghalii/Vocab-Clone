@@ -25,6 +25,8 @@ final class ReelViewModel {
     private var isLoadingMore = false
     private var pronunciationResetTask: Task<Void, Never>?
 
+    nonisolated deinit {}
+
     init(
         repository: WordQuerying & WordStateMutating & WordHistoryQuerying,
         audioPlayer: AudioPlayerProtocol,

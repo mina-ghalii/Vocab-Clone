@@ -9,6 +9,8 @@ final class SwiftDataWordRepository: WordQuerying, WordStateMutating, WordHistor
 
     private let modelContext: ModelContext
 
+    nonisolated deinit {}
+
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }

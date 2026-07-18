@@ -18,6 +18,8 @@ final class UserDefaultsStreakTrackingService: StreakTracking {
         return formatter
     }()
 
+    nonisolated deinit {}
+
     init(defaults: UserDefaults = .standard, calendar: Calendar = .current, now: @escaping () -> Date = Date.init) {
         self.defaults = defaults
         self.calendar = calendar

@@ -40,6 +40,8 @@ final class WordListViewModel {
     private let audioPlayer: AudioPlayerProtocol
     private let shareImageGenerator: ShareImageGenerating
 
+    nonisolated deinit {}
+
     init(
         kind: WordListKind,
         repository: WordHistoryQuerying & WordStateMutating,

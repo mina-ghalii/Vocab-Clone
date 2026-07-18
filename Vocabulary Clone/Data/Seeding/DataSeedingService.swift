@@ -9,6 +9,8 @@ final class DataSeedingService: WordSeeding {
     private let seedProvider: WordSeedProviding
     private let chunkSize: Int
 
+    nonisolated deinit {}
+
     init(modelContext: ModelContext, seedProvider: WordSeedProviding, chunkSize: Int = 500) {
         self.modelContext = modelContext
         self.seedProvider = seedProvider

@@ -18,6 +18,8 @@ final class QuizViewModel {
 
     var currentQuestion: QuizQuestion { questions[currentIndex] }
 
+    nonisolated deinit {}
+
     /// Fraction of the test completed, counting the current question once it's answered.
     var progress: Double {
         let answeredCount = currentIndex + (selectedOptionIndex == nil ? 0 : 1)
