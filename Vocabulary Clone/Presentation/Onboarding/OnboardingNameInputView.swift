@@ -59,8 +59,7 @@ struct OnboardingNameInputView: View {
             .animation(.easeOut(duration: 0.15), value: trimmedName.isEmpty)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.169, green: 0.169, blue: 0.169))
-        .ignoresSafeArea(edges: .bottom)
+        .background(Color(red: 0.169, green: 0.169, blue: 0.169).ignoresSafeArea())
     }
 }
 
