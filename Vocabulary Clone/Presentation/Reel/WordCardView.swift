@@ -63,9 +63,7 @@ struct WordCardView: View {
             .zIndex(1)
             #endif
 
-            VStack(spacing: 0) {
-                Spacer()
-
+            VStack(spacing: 40) {
                 VStack(spacing: 18) {
                     Text(entry.word)
                         .font(.system(size: 44, weight: .bold, design: .serif))
@@ -97,9 +95,9 @@ struct WordCardView: View {
                     onPress: { Task { await viewModel.beginPronunciationCheck(for: entry) } },
                     onRelease: { Task { await viewModel.endPronunciationCheck(for: entry) } }
                 )
-                .padding(.top, 40)
+            }
 
-                Spacer()
+            VStack {
                 Spacer()
 
                 ActionRailView(
