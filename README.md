@@ -4,7 +4,7 @@ A reel-style, offline-first English vocabulary app (Oxford 5000) that personaliz
 
 ## Demo
 
-[Screen Recording 2026-07-19 at 4.24.41 PM.mov](./Screen%20Recording%202026-07-19%20at%204.24.41%20PM.mov)
+[Screen Recording 2026-07-19 at 4.24.41 PM.mp4](./Screen%20Recording%202026-07-19%20at%204.24.41%E2%80%AFPM.mp4)
 
 ## How it was built
 
