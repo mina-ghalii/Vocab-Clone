@@ -14,6 +14,7 @@ struct ProfileView: View {
     @State private var presentedKind: WordListKind?
     @State private var isTestPresented = false
     @State private var isChangingTheme = false
+    @State private var currentLevel = PersonalizationSignals.load()?.targetLevel
     @AppStorage("readingTheme") private var readingThemeRawValue = ReadingTheme.dark.rawValue
     @Environment(\.readingTheme) private var theme
     @Environment(\.dismiss) private var dismiss
@@ -52,7 +53,10 @@ struct ProfileView: View {
                         modelContext: modelContext,
                         profile: OnboardingProfile.load() ?? OnboardingProfile()
                     ),
-                    onReseedCompleted: onWordsReseeded
+                    onReseedCompleted: {
+                        currentLevel = PersonalizationSignals.load()?.targetLevel
+                        onWordsReseeded()
+                    }
                 ),
                 onClose: { isTestPresented = false }
             )
@@ -67,6 +71,8 @@ struct ProfileView: View {
             Text("Profile")
                 .font(.system(size: 34, weight: .bold, design: .serif))
                 .foregroundStyle(theme.primaryText)
+
+            levelBadge
 
             takeTestRow
 
@@ -89,6 +95,29 @@ struct ProfileView: View {
                 .foregroundStyle(theme.iconTint)
                 .frame(width: 44, height: 44)
                 .background(theme.chipUnselectedBackground, in: Circle())
+        }
+    }
+
+    /// Surfaces the currently active `PersonalizationSignals.targetLevel` —
+    /// set either by the on-device AI's onboarding/quiz inference or its
+    /// deterministic fallback, whichever last resolved successfully — so the
+    /// user always has a plain answer to "what level am I at" without
+    /// needing to retake the test.
+    @ViewBuilder
+    private var levelBadge: some View {
+        if let currentLevel {
+            HStack(spacing: 10) {
+                Image(systemName: "chart.bar.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(theme.iconTint)
+
+                Text("Your level: \(currentLevel.displayTitle)")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(theme.primaryText)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(theme.chipUnselectedBackground.opacity(0.6), in: Capsule())
         }
     }
 

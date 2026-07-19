@@ -22,12 +22,18 @@ struct QuizView: View {
             if let result = viewModel.result {
                 QuizResultView(result: result, onDone: onClose)
                     .transition(.opacity.combined(with: .scale(scale: 0.97)))
+            } else if !viewModel.hasLoadedQuestions {
+                QuizLoadingView()
+                    .transition(.opacity)
             } else {
                 quizContent
+                    .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.4), value: viewModel.result != nil)
+        .animation(.easeInOut(duration: 0.4), value: viewModel.hasLoadedQuestions)
         .preferredColorScheme(theme.colorScheme)
+        .task { await viewModel.generateQuestions() }
     }
 
     private var quizContent: some View {

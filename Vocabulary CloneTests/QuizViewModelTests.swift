@@ -120,6 +120,63 @@ final class QuizViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isAssessing)
     }
 
+    func testGenerateQuestionsSwapsInGeneratedSetBeforeAnyAnswer() async throws {
+        let generator = FakeQuizQuestionGenerator()
+        generator.questionsToReturn = makeQuestions(count: 1)
+        let viewModel = QuizViewModel(
+            questions: makeQuestions(count: 3),
+            questionGenerator: generator,
+            wordPoolLoader: { [QuizWordCandidate(word: "brave", definition: "d", band: .b1, difficulty: 0.5)] },
+            levelAssessor: FakeLevelAssessor(),
+            answerRevealDelay: .seconds(5)
+        )
+
+        await viewModel.generateQuestions()
+
+        XCTAssertEqual(viewModel.questions.count, 1)
+        XCTAssertEqual(generator.generateQuestionsCallCount, 1)
+        XCTAssertEqual(generator.lastCandidates.map(\.word), ["brave"])
+    }
+
+    func testGenerateQuestionsKeepsOriginalSetWhenGeneratorThrows() async throws {
+        let generator = FakeQuizQuestionGenerator()
+        generator.errorToThrow = NSError(domain: "test", code: 1)
+        let original = makeQuestions(count: 3)
+        let viewModel = QuizViewModel(
+            questions: original,
+            questionGenerator: generator,
+            wordPoolLoader: { [QuizWordCandidate(word: "brave", definition: "d", band: .b1, difficulty: 0.5)] },
+            levelAssessor: FakeLevelAssessor(),
+            answerRevealDelay: .seconds(5)
+        )
+
+        await viewModel.generateQuestions()
+
+        XCTAssertEqual(viewModel.questions, original)
+    }
+
+    func testGenerateQuestionsNeverOverwritesAnInProgressTest() async throws {
+        let generator = FakeQuizQuestionGenerator()
+        generator.questionsToReturn = makeQuestions(count: 1)
+        generator.delay = .milliseconds(50)
+        let original = makeQuestions(count: 3)
+        let viewModel = QuizViewModel(
+            questions: original,
+            questionGenerator: generator,
+            wordPoolLoader: { [QuizWordCandidate(word: "brave", definition: "d", band: .b1, difficulty: 0.5)] },
+            levelAssessor: FakeLevelAssessor(),
+            answerRevealDelay: .seconds(5)
+        )
+
+        async let generation: Void = viewModel.generateQuestions()
+        try await Task.sleep(for: .milliseconds(10))
+        viewModel.selectAnswer(0)
+        await generation
+
+        XCTAssertEqual(viewModel.questions, original)
+        XCTAssertEqual(viewModel.answers.count, 1)
+    }
+
     func testProgressCountsCurrentQuestionOnceAnswered() {
         let viewModel = QuizViewModel(
             questions: makeQuestions(count: 4),

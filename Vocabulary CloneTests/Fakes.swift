@@ -173,3 +173,22 @@ final class FakeLevelAssessor: VocabularyLevelAssessing {
         return resultToReturn
     }
 }
+
+/// Scripted `QuizQuestionGenerating` fake: lets tests dictate the questions
+/// returned (or error thrown) for a candidate pool.
+final class FakeQuizQuestionGenerator: QuizQuestionGenerating {
+    var questionsToReturn: [QuizQuestion] = []
+    var errorToThrow: Error?
+    var delay: Duration = .zero
+
+    private(set) var generateQuestionsCallCount = 0
+    private(set) var lastCandidates: [QuizWordCandidate] = []
+
+    func generateQuestions(from candidates: [QuizWordCandidate]) async throws -> [QuizQuestion] {
+        generateQuestionsCallCount += 1
+        lastCandidates = candidates
+        if delay > .zero { try? await Task.sleep(for: delay) }
+        if let errorToThrow { throw errorToThrow }
+        return questionsToReturn
+    }
+}

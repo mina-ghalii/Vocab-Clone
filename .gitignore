@@ -36,3 +36,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# Secrets — never commit real API keys. Copy Secrets.swift.template to
+# Secrets.swift and fill in your own.
+Vocabulary Clone/Secrets.swift

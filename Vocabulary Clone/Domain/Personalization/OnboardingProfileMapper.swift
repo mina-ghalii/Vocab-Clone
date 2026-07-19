@@ -1,9 +1,9 @@
 import Foundation
 
 /// Deterministic, rule-based level inference — the mandatory fallback used
-/// whenever the on-device model (`LevelInferenceGenerator`) is unavailable or
-/// fails. Takes `placementWords` as a parameter rather than loading them itself,
-/// so this stays pure/testable like the rest of Domain.
+/// whenever the Gemini-backed generator (`GeminiLevelInferenceGenerator`) is
+/// unavailable or fails. Takes `placementWords` as a parameter rather than
+/// loading them itself, so this stays pure/testable like the rest of Domain.
 enum OnboardingProfileMapper {
     private static let vocabularyLevelBaseline: [String: CEFRLevel] = [
         "Beginner": .a1,

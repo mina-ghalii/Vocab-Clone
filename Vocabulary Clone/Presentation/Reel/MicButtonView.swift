@@ -11,6 +11,7 @@ struct MicButtonView: View {
 
     @State private var isPressing = false
     @State private var isPulsing = false
+    @State private var isCaptionBreathing = false
     @State private var impactGenerator = UIImpactFeedbackGenerator(style: .medium)
     @State private var notificationGenerator = UINotificationFeedbackGenerator()
 
@@ -19,6 +20,17 @@ struct MicButtonView: View {
     private let diameter: CGFloat = 76
 
     var body: some View {
+        VStack(spacing: 12) {
+            micCircle
+            captionLabel
+        }
+        .onAppear {
+            impactGenerator.prepare()
+            isCaptionBreathing = true
+        }
+    }
+
+    private var micCircle: some View {
         ZStack {
             if state == .recording {
                 pulseRing(delay: 0)
@@ -57,18 +69,61 @@ struct MicButtonView: View {
             switch newState {
             case .recording:
                 isPulsing = true
+                isCaptionBreathing = false
             case .correct:
                 notificationGenerator.notificationOccurred(.success)
                 isPulsing = false
+                isCaptionBreathing = false
             case .incorrect:
                 notificationGenerator.notificationOccurred(.error)
                 isPulsing = false
-            case .idle, .processing:
+                isCaptionBreathing = false
+            case .processing:
                 isPulsing = false
+                isCaptionBreathing = false
+            case .idle:
+                isPulsing = false
+                isCaptionBreathing = true
             }
         }
-        .onAppear {
-            impactGenerator.prepare()
+    }
+
+    private var captionLabel: some View {
+        Text(captionText)
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(captionForeground)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(captionBackground, in: Capsule())
+            .contentTransition(.opacity)
+            .animation(.easeInOut(duration: 0.2), value: state)
+            .opacity(isCaptionBreathing ? 0.55 : 1)
+            .animation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true), value: isCaptionBreathing)
+    }
+
+    private var captionText: String {
+        switch state {
+        case .idle: return "Hold to speak"
+        case .recording: return "Say the word aloud"
+        case .processing: return "Checking…"
+        case .correct: return "Nailed it!"
+        case .incorrect: return "Try again"
+        }
+    }
+
+    private var captionForeground: Color {
+        switch state {
+        case .idle, .processing: return theme.secondaryText
+        case .recording, .correct: return .green
+        case .incorrect: return .red
+        }
+    }
+
+    private var captionBackground: Color {
+        switch state {
+        case .idle, .processing: return theme.chipUnselectedBackground
+        case .recording, .correct: return Color.green.opacity(0.15)
+        case .incorrect: return Color.red.opacity(0.15)
         }
     }
 

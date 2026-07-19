@@ -1,118 +1,121 @@
 import Foundation
 
-/// A fixed, hand-picked set of ten placement-test questions spanning a2
-/// through c1+, in ascending difficulty. Mixing all three question types at
-/// every band (rather than one type per band) means a wrong answer on an easy
-/// word is as informative as a right answer on a hard one, which is what lets
-/// `VocabularyLevelAssessing` read a real level out of the pattern instead of
-/// just a raw score.
+/// A fixed, hand-picked set of ten placement-test questions spanning a1
+/// through c1, in ascending difficulty. Every word and its CEFR band is
+/// pulled straight from `oxford_5000.json` (two words per band) so the
+/// `difficulty` value below is grounded in the same data `WordEntry.cefrLevel`
+/// reads from, rather than a guessed scale. Mixing all three question types
+/// across the run (rather than one type per band) means a wrong answer on an
+/// easy word is as informative as a right answer on a hard one, which is what
+/// lets `VocabularyLevelAssessing` read a real level out of the pattern
+/// instead of just a raw score.
 enum QuizQuestionBank {
     static let questions: [QuizQuestion] = [
         QuizQuestion(
-            id: "reluctant",
+            id: "afraid",
             type: .meaningMatch,
-            word: "reluctant",
+            word: "afraid",
             promptSentence: nil,
             options: [
-                "Extremely happy and excited about a plan",
-                "Unwilling or hesitant to do something",
-                "Loud and difficult to ignore",
+                "Excited and full of energy",
+                "Frightened that something bad might happen",
+                "Bored and impatient",
             ],
             correctOptionIndex: 1,
-            difficulty: 0.15
+            difficulty: 0.1
         ),
         QuizQuestion(
-            id: "elated",
+            id: "busy",
             type: .fillInTheGap,
-            word: "elated",
-            promptSentence: "She felt {blank} after hearing the good news.",
-            options: ["elated", "sedentary", "gullible"],
-            correctOptionIndex: 0,
-            difficulty: 0.2
-        ),
-        QuizQuestion(
-            id: "candid",
-            type: .matchSynonyms,
-            word: "candid",
-            promptSentence: nil,
-            options: ["hidden", "colorful", "honest"],
-            correctOptionIndex: 2,
-            difficulty: 0.3
-        ),
-        QuizQuestion(
-            id: "meticulous",
-            type: .meaningMatch,
-            word: "meticulous",
-            promptSentence: nil,
-            options: [
-                "Showing great care and attention to detail",
-                "Feeling extremely tired and worn out",
-                "Happening completely by chance",
-            ],
-            correctOptionIndex: 0,
-            difficulty: 0.4
-        ),
-        QuizQuestion(
-            id: "skeptical",
-            type: .fillInTheGap,
-            word: "skeptical",
-            promptSentence: "The detective remained {blank} despite the confusing evidence.",
-            options: ["gregarious", "skeptical", "insipid"],
+            word: "busy",
+            promptSentence: "I can't talk right now, I'm really {blank} at work today.",
+            options: ["clean", "busy", "cold"],
             correctOptionIndex: 1,
-            difficulty: 0.45
+            difficulty: 0.18
         ),
         QuizQuestion(
-            id: "audacious",
+            id: "brilliant",
             type: .matchSynonyms,
-            word: "audacious",
+            word: "brilliant",
             promptSentence: nil,
-            options: ["bold", "quiet", "fragile"],
-            correctOptionIndex: 0,
-            difficulty: 0.55
+            options: ["dull", "impressive", "ordinary"],
+            correctOptionIndex: 1,
+            difficulty: 0.25
         ),
         QuizQuestion(
-            id: "ephemeral",
+            id: "ancient",
             type: .meaningMatch,
-            word: "ephemeral",
+            word: "ancient",
             promptSentence: nil,
             options: [
-                "Extremely heavy or dense",
-                "Related to the study of insects",
-                "Lasting for a very short time",
+                "Belonging to a period of history thousands of years in the past",
+                "Extremely modern and fashionable",
+                "Happening only once in a while",
             ],
-            correctOptionIndex: 2,
-            difficulty: 0.65
+            correctOptionIndex: 0,
+            difficulty: 0.35
         ),
         QuizQuestion(
-            id: "acerbic",
+            id: "annoyed",
             type: .fillInTheGap,
-            word: "acerbic",
-            promptSentence: "His {blank} remarks alienated most of his colleagues.",
-            options: ["verdant", "tacit", "acerbic"],
+            word: "annoyed",
+            promptSentence: "He was getting more {blank} with me about my carelessness.",
+            options: ["aware", "calm", "annoyed"],
             correctOptionIndex: 2,
-            difficulty: 0.75
+            difficulty: 0.42
         ),
         QuizQuestion(
-            id: "obdurate",
+            id: "brave",
             type: .matchSynonyms,
-            word: "obdurate",
+            word: "brave",
             promptSentence: nil,
-            options: ["generous", "transparent", "stubborn"],
-            correctOptionIndex: 2,
-            difficulty: 0.85
+            options: ["courageous", "careless", "aged"],
+            correctOptionIndex: 0,
+            difficulty: 0.5
         ),
         QuizQuestion(
-            id: "nadir",
+            id: "anxious",
             type: .meaningMatch,
-            word: "nadir",
+            word: "anxious",
             promptSentence: nil,
             options: [
-                "A magical drink that can do wonders",
-                "The lowest point or worst moment of something",
-                "Denial of comfort to oneself",
+                "Feeling worried or nervous",
+                "Feeling extremely proud of an achievement",
+                "Showing no interest in what is happening",
+            ],
+            correctOptionIndex: 0,
+            difficulty: 0.58
+        ),
+        QuizQuestion(
+            id: "ashamed",
+            type: .fillInTheGap,
+            word: "ashamed",
+            promptSentence: "She was deeply {blank} of her behaviour at the party.",
+            options: ["artistic", "adequate", "ashamed"],
+            correctOptionIndex: 2,
+            difficulty: 0.68
+        ),
+        QuizQuestion(
+            id: "absurd",
+            type: .matchSynonyms,
+            word: "absurd",
+            promptSentence: nil,
+            options: ["ridiculous", "logical", "accountable"],
+            correctOptionIndex: 0,
+            difficulty: 0.78
+        ),
+        QuizQuestion(
+            id: "arbitrary",
+            type: .meaningMatch,
+            word: "arbitrary",
+            promptSentence: nil,
+            options: [
+                "Showing great skill gained through years of experience",
+                "Not based on any clear reason or system",
+                "Related to the design of buildings",
             ],
             correctOptionIndex: 1,
-            difficulty: 0.95
+            difficulty: 0.9
         ),
     ]
 }

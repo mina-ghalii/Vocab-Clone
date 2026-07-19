@@ -14,6 +14,14 @@ enum QuizQuestionType: String, Equatable {
         case .matchSynonyms: return "Match synonyms"
         }
     }
+
+    /// Cycles through all three types in order, so a run of generated
+    /// questions mixes formats the same way `QuizQuestionBank`'s hand-picked
+    /// list does, regardless of how many words it covers.
+    static func rotation(count: Int) -> [QuizQuestionType] {
+        let cycle: [QuizQuestionType] = [.meaningMatch, .fillInTheGap, .matchSynonyms]
+        return (0..<count).map { cycle[$0 % cycle.count] }
+    }
 }
 
 /// One placement-test question. `.fillInTheGap` uses `promptSentence` (which

@@ -66,6 +66,34 @@ final class HeuristicLevelAssessorTests: XCTestCase {
         }
     }
 
+    func testNineOfTenCorrectWithOnlyAHighDifficultyMissAssessesC1() async throws {
+        // Mirrors QuizQuestionBank/QuizWordPool's real ladder: two questions
+        // per band, a1 through c1, ascending.
+        let ladder: [Double] = [0.1, 0.18, 0.25, 0.35, 0.42, 0.5, 0.58, 0.68, 0.78, 0.9]
+        let answers = ladder.map { makeAnswer(difficulty: $0, isCorrect: $0 != 0.9) }
+
+        let result = try await HeuristicLevelAssessor().assessLevel(from: answers)
+
+        XCTAssertEqual(result.correctCount, 9)
+        XCTAssertEqual(result.assessedLevel, .c1)
+    }
+
+    func testFiveOfTenCorrectWithAGapAtTheBottomDoesNotAssessC1() async throws {
+        // Same ladder, but both a1 questions and both b1 questions are wrong
+        // — a real gap at the bottom — even though one of the two hardest
+        // (c1) questions was guessed correctly. The old
+        // "highest-correct-difficulty" heuristic read this as C1; the fix
+        // should cap it at the first band that wasn't cleared.
+        let ladder: [Double] = [0.1, 0.18, 0.25, 0.35, 0.42, 0.5, 0.58, 0.68, 0.78, 0.9]
+        let wrong: Set<Double> = [0.1, 0.18, 0.42, 0.5, 0.9]
+        let answers = ladder.map { makeAnswer(difficulty: $0, isCorrect: !wrong.contains($0)) }
+
+        let result = try await HeuristicLevelAssessor().assessLevel(from: answers)
+
+        XCTAssertEqual(result.correctCount, 5)
+        XCTAssertEqual(result.assessedLevel, .a1)
+    }
+
     func testSummaryIncludesCountsAndLevel() async throws {
         let answers = [
             makeAnswer(difficulty: 0.1, isCorrect: true),

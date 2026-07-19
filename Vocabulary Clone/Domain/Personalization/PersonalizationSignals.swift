@@ -1,11 +1,11 @@
 import Foundation
 
 /// The inferred reading level `PersonalizedWordOrderer` filters words against.
-/// Produced either by `LevelInferenceGenerator` (on-device LLM, when available)
-/// or `OnboardingProfileMapper` (deterministic, always available) — the orderer
-/// doesn't know or care which one produced it. Topic preference isn't part of
-/// this: it's read straight off `OnboardingProfile.topics` as a plain filter,
-/// no inference needed.
+/// Produced either by `GeminiLevelInferenceGenerator` (cloud LLM, when
+/// available) or `OnboardingProfileMapper` (deterministic, always available)
+/// — the orderer doesn't know or care which one produced it. Topic preference
+/// isn't part of this: it's read straight off `OnboardingProfile.topics` as a
+/// plain filter, no inference needed.
 struct PersonalizationSignals: Codable, Equatable {
     /// The CEFR band this user's words should start at. Only words at or above
     /// this level are shown.
